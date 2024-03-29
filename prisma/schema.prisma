@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+model User{
+  id String @id @default(uuid())
+  username String @unique
+  imageUrl String @db.Text
+  externalId String @unique
+  bio String? @db.Text
+  following follow[] @relation("Following")
+  followedBy follow[] @relation("FollowedBy")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model follow{
+id String @id @default(uuid())
+followerId String 
+followingId String
+
+Follower User @relation(name: "Following", fields: [followerId], references: [id], onDelete: Cascade)
+following User @relation(name: "FollowedBy", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+@@unique([followerId,followingId])
+@@index([followerId])
+@@index([followingId])
+}
